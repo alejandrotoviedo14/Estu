@@ -1,0 +1,19 @@
+{
+  "season":"2026-27",
+  "motto":"Indestructibles",
+  "club":{"name":"Movistar Estudiantes","competition":"Primera FEB","goal":"Ascenso a la Liga ACB","coach":"Toni Ten","arena":"Movistar Arena (13.109)","shareholder":"Diego Megía (nuevo máximo accionista)"},
+  "teams":[
+    {"name":"Primer equipo masculino","league":"Primera FEB","coach":"Toni Ten","note":"Objetivo: ascenso a la Liga ACB"},
+    {"name":"Women in Black","league":"Liga Femenina Endesa","coach":"Isaac Fernández","note":"Afianzar su crecimiento en la máxima categoría"},
+    {"name":"Filial masculino","league":"Segunda FEB","coach":"","note":"Debut histórico en la categoría tras el ascenso"}
+  ],
+  "history":[
+    "2025-26: campeón de la Copa de España de Primera/Segunda FEB (primer título; MVP Lotanna Nwogbo)",
+    "2025-26: finalista de la Final Four de Primera FEB (Toni Ten, entrenador desde 2025)",
+    "Verano 2026: 8 medallas internacionales de la cantera con las selecciones españolas"
+  ],
+  "fixtures":[],
+  "standings":[],
+  "roster":[],
+  "_help":"fixtures: {round,comp,date(ISO),home(bool),rival,ptsFor,ptsAgainst} (puntos null si no jugado). standings: {pos,team,pj,w,l,pf,pc}. roster: {num,name,pos,height,age,ppg,rpg,apg,val}."
+}
