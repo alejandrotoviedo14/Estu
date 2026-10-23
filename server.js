@@ -21,4 +21,5 @@ app.get('/api/sync',async(q,r)=>r.json(await S.sync()));
 app.get('/api/debug/raw',async(q,r)=>{try{const h=await S.get(S.PAGES[q.query.page]||S.PAGES.results);r.type('text').send(h.slice(0,+q.query.n||4000))}catch(e){r.status(500).send(e.message)}});
 app.get('/health',(q,r)=>r.send('ok'));
 app.use(express.static(path.join(__dirname,'public')));
+app.get('/',(q,r)=>{const f=[path.join(__dirname,'public','index.html'),path.join(__dirname,'index.html')].find(x=>fs.existsSync(x));f?r.sendFile(f):r.status(404).send('index.html no encontrado. Archivos: '+fs.readdirSync(__dirname).join(', '))});
 app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);S.sync();setInterval(S.sync,MIN*60e3)});
