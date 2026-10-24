@@ -80,7 +80,7 @@
    "ptsFor": 86,
    "ptsAgainst": 77,
    "top": "Silverio 27 pts · Munnings 8 reb · Westermann 4 ast",
-   "note": "Remontada desde el 35-48 del descanso · 6.490 espectadores",
+   "note": "Remontada desde el 35-48 del descanso · 6.490 espectadores · MVP Silverio (27 pts, 3 ast, 20 val)",
    "noTime": false
   },
   {
@@ -106,6 +106,18 @@
    "top": "",
    "note": "Polideportivo Son Moix · busca la 5ª victoria seguida",
    "noTime": false
+  },
+  {
+   "round": 6,
+   "comp": "Primera FEB",
+   "date": "2026-11-01T18:30:00",
+   "home": true,
+   "rival": "Cajasiete Gran Canaria",
+   "ptsFor": null,
+   "ptsAgainst": null,
+   "top": "",
+   "note": "Movistar Arena · uno de los grandes retos de la temporada",
+   "noTime": false
   }
  ],
  "standings": [],
@@ -122,7 +134,13 @@
     "7 reb en Zamora (3 oct)",
     "8 reb ante Palencia (18 oct)"
    ],
-   "val": 11.6
+   "val": 11.6,
+   "log": {
+    "1": 10,
+    "3": 12,
+    "4": 5
+   },
+   "rpg": 5.6
   },
   {
    "num": 3,
@@ -137,7 +155,14 @@
     "11 pts en el estreno ante Caja 87 (27 sep)",
     "4 ast ante Gipuzkoa (11 oct)"
    ],
-   "val": 18.3
+   "val": 18.3,
+   "log": {
+    "1": 11,
+    "2": 16,
+    "3": 8
+   },
+   "ppg": 11.6,
+   "apg": 5
   },
   {
    "num": 6,
@@ -146,7 +171,12 @@
    "height": 2.0,
    "born": "2005-06-14",
    "status": "Comunitario",
-   "ph": "LucasGiovannetti"
+   "ph": "LucasGiovannetti",
+   "log": {
+    "1": 4,
+    "3": 10,
+    "4": 8
+   }
   },
   {
    "num": 7,
@@ -155,7 +185,10 @@
    "height": 2.09,
    "born": "1994-01-01",
    "status": "Comunitario",
-   "ph": "PetitNiang"
+   "ph": "PetitNiang",
+   "log": {
+    "1": 7
+   }
   },
   {
    "num": 9,
@@ -168,7 +201,11 @@
    "hl": [
     "4 ast ante Palencia (18 oct)"
    ],
-   "val": null
+   "val": null,
+   "log": {
+    "3": 12,
+    "4": 11
+   }
   },
   {
    "num": 10,
@@ -190,7 +227,13 @@
    "hl": [
     "16 pts ante Gipuzkoa (11 oct)"
    ],
-   "val": null
+   "val": null,
+   "log": {
+    "1": 3,
+    "3": 16,
+    "4": 10
+   },
+   "ppg": 11.3
   },
   {
    "num": 13,
@@ -199,7 +242,12 @@
    "height": 2.03,
    "born": "1999-09-19",
    "status": "Comunitario",
-   "ph": "KasparTreier"
+   "ph": "KasparTreier",
+   "log": {
+    "1": 10,
+    "3": 3,
+    "4": 2
+   }
   },
   {
    "num": 15,
@@ -208,7 +256,10 @@
    "height": 2.04,
    "born": "1995-11-19",
    "status": "Formado localmente",
-   "ph": "IvanAurrecoechea"
+   "ph": "IvanAurrecoechea",
+   "log": {
+    "4": 6
+   }
   },
   {
    "num": 16,
@@ -217,7 +268,13 @@
    "height": 1.99,
    "born": "2002-09-16",
    "status": "Formado localmente",
-   "ph": "MillanJimenez"
+   "ph": "MillanJimenez",
+   "log": {
+    "1": 11,
+    "3": 11,
+    "4": 6
+   },
+   "ppg": 10.3
   },
   {
    "num": 17,
@@ -226,7 +283,10 @@
    "height": 2.04,
    "born": "2002-02-20",
    "status": "Formado localmente",
-   "ph": "BorisTisma"
+   "ph": "BorisTisma",
+   "log": {
+    "3": 4
+   }
   },
   {
    "num": 20,
@@ -235,7 +295,11 @@
    "height": 2.04,
    "born": "1997-06-27",
    "status": "Extracomunitario",
-   "ph": "JehyveFloyd"
+   "ph": "JehyveFloyd",
+   "log": {
+    "1": 1,
+    "3": 9
+   }
   },
   {
    "num": 22,
@@ -249,7 +313,13 @@
     "11 pts · 7 reb · 15 val ante Caja 87 (27 sep)",
     "9 reb ante Gipuzkoa (11 oct)"
    ],
-   "val": 17.3
+   "val": 17.3,
+   "log": {
+    "1": 11,
+    "3": 14,
+    "4": 5
+   },
+   "rpg": 7
   },
   {
    "num": 51,
@@ -262,7 +332,12 @@
    "hl": [
     "27 pts (6/13 en triples) y 3 ast ante Palencia (18 oct)"
    ],
-   "val": null
+   "val": null,
+   "log": {
+    "1": 10,
+    "3": 5,
+    "4": 27
+   }
   }
  ],
  "staff": [
