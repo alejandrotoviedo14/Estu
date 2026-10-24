@@ -1,19 +1,318 @@
 {
-  "season":"2026-27",
-  "motto":"Indestructibles",
-  "club":{"name":"Movistar Estudiantes","competition":"Primera FEB","goal":"Ascenso a la Liga ACB","coach":"Toni Ten","arena":"Movistar Arena (13.109)","shareholder":"Diego Megía (nuevo máximo accionista)"},
-  "teams":[
-    {"name":"Primer equipo masculino","league":"Primera FEB","coach":"Toni Ten","note":"Objetivo: ascenso a la Liga ACB"},
-    {"name":"Women in Black","league":"Liga Femenina Endesa","coach":"Isaac Fernández","note":"Afianzar su crecimiento en la máxima categoría"},
-    {"name":"Filial masculino","league":"Segunda FEB","coach":"","note":"Debut histórico en la categoría tras el ascenso"}
+ "season": "2026-27",
+ "motto": "Indestructibles",
+ "club": {
+  "name": "Movistar Estudiantes",
+  "competition": "Primera FEB",
+  "goal": "Ascenso a la Liga ACB",
+  "coach": "Toni Ten",
+  "arena": "Movistar Arena (13.109)",
+  "shareholder": "Diego Megía (nuevo máximo accionista)"
+ },
+ "teams": [
+  {
+   "name": "Primer equipo masculino",
+   "league": "Primera FEB",
+   "coach": "Toni Ten",
+   "note": "Objetivo: ascenso a la Liga ACB"
+  },
+  {
+   "name": "Women in Black",
+   "league": "Liga Femenina Endesa",
+   "coach": "Isaac Fernández",
+   "note": "Afianzar su crecimiento en la máxima categoría"
+  },
+  {
+   "name": "Filial masculino",
+   "league": "Segunda FEB",
+   "coach": "",
+   "note": "Debut histórico en la categoría tras el ascenso"
+  }
+ ],
+ "history": [
+  "2025-26: campeón de la Copa de España de Primera/Segunda FEB (primer título; MVP Lotanna Nwogbo)",
+  "2025-26: finalista de la Final Four de Primera FEB (Toni Ten, entrenador desde 2025)",
+  "Verano 2026: 8 medallas internacionales de la cantera con las selecciones españolas"
+ ],
+ "fixtures": [
+  {
+   "round": 1,
+   "comp": "Primera FEB",
+   "date": "2026-09-27",
+   "home": true,
+   "rival": "Insolac Caja 87",
+   "ptsFor": 78,
+   "ptsAgainst": 65,
+   "top": "Speight 11 · Vaulet 11 (MVP afición, 15 val)",
+   "note": "Estreno liguero en casa",
+   "noTime": true
+  },
+  {
+   "round": 2,
+   "comp": "Primera FEB",
+   "date": "2026-10-03T19:30:00",
+   "home": false,
+   "rival": "Caja Rural CB Zamora",
+   "ptsFor": 80,
+   "ptsAgainst": 73,
+   "top": "Speight 16 pts · Munnings 7 reb · Speight 4 ast",
+   "note": "",
+   "noTime": false
+  },
+  {
+   "round": 3,
+   "comp": "Primera FEB",
+   "date": "2026-10-11T18:30:00",
+   "home": true,
+   "rival": "Inveready Askatuak Gipuzkoa",
+   "ptsFor": 106,
+   "ptsAgainst": 76,
+   "top": "Walker 16 pts · Vaulet 9 reb · Speight 4 ast",
+   "note": "",
+   "noTime": false
+  },
+  {
+   "round": 4,
+   "comp": "Primera FEB",
+   "date": "2026-10-18T18:30:00",
+   "home": true,
+   "rival": "Iberolea Palencia",
+   "ptsFor": 86,
+   "ptsAgainst": 77,
+   "top": "Silverio 27 pts · Munnings 8 reb · Westermann 4 ast",
+   "note": "Remontada desde el 35-48 del descanso · 6.490 espectadores",
+   "noTime": false
+  },
+  {
+   "round": null,
+   "comp": "Copa de España",
+   "date": "2026-10-20T20:30:00",
+   "home": false,
+   "rival": "Coviran Granada",
+   "ptsFor": null,
+   "ptsAgainst": null,
+   "top": "",
+   "note": "Dieciseisavos · defiende el título",
+   "noTime": false
+  },
+  {
+   "round": 5,
+   "comp": "Primera FEB",
+   "date": "2026-10-25T18:00:00",
+   "home": false,
+   "rival": "Fibwi Mallorca Palma",
+   "ptsFor": null,
+   "ptsAgainst": null,
+   "top": "",
+   "note": "Polideportivo Son Moix · busca la 5ª victoria seguida",
+   "noTime": false
+  }
+ ],
+ "standings": [],
+ "roster": [
+  {
+   "num": 2,
+   "name": "Travis Munnings",
+   "pos": "Alero",
+   "height": 1.96,
+   "born": "1994-09-14",
+   "status": "Cotonú",
+   "ph": "TravisMunnings",
+   "hl": [
+    "7 reb en Zamora (3 oct)",
+    "8 reb ante Palencia (18 oct)"
+   ],
+   "val": 11.6
+  },
+  {
+   "num": 3,
+   "name": "Micah Speight",
+   "pos": "Base",
+   "height": 1.78,
+   "born": "1998-06-26",
+   "status": "Comunitario",
+   "ph": "MicahSpeight",
+   "hl": [
+    "16 pts · 4 ast en Zamora (3 oct)",
+    "11 pts en el estreno ante Caja 87 (27 sep)",
+    "4 ast ante Gipuzkoa (11 oct)"
+   ],
+   "val": 18.3
+  },
+  {
+   "num": 6,
+   "name": "Lucas Giovannetti",
+   "pos": "Alero",
+   "height": 2.0,
+   "born": "2005-06-14",
+   "status": "Comunitario",
+   "ph": "LucasGiovannetti"
+  },
+  {
+   "num": 7,
+   "name": "Petit Niang",
+   "pos": "Pívot",
+   "height": 2.09,
+   "born": "1994-01-01",
+   "status": "Comunitario",
+   "ph": "PetitNiang"
+  },
+  {
+   "num": 9,
+   "name": "Léo Westermann",
+   "pos": "Base",
+   "height": 1.98,
+   "born": "1992-07-24",
+   "status": "Comunitario",
+   "ph": "LeoWestermann",
+   "hl": [
+    "4 ast ante Palencia (18 oct)"
+   ],
+   "val": null
+  },
+  {
+   "num": 10,
+   "name": "Fernando Zurbriggen",
+   "pos": "Base",
+   "height": 1.85,
+   "born": "1997-10-20",
+   "status": "Comunitario",
+   "ph": "FerZurbriggen"
+  },
+  {
+   "num": 11,
+   "name": "Jordan Walker",
+   "pos": "Escolta",
+   "height": 1.86,
+   "born": "1997-10-19",
+   "status": "Extracomunitario",
+   "ph": "JordanWalker",
+   "hl": [
+    "16 pts ante Gipuzkoa (11 oct)"
+   ],
+   "val": null
+  },
+  {
+   "num": 13,
+   "name": "Kaspar Treier",
+   "pos": "Ala-pívot",
+   "height": 2.03,
+   "born": "1999-09-19",
+   "status": "Comunitario",
+   "ph": "KasparTreier"
+  },
+  {
+   "num": 15,
+   "name": "Iván Aurrecoechea",
+   "pos": "Pívot",
+   "height": 2.04,
+   "born": "1995-11-19",
+   "status": "Formado localmente",
+   "ph": "IvanAurrecoechea"
+  },
+  {
+   "num": 16,
+   "name": "Millán Jiménez",
+   "pos": "Alero",
+   "height": 1.99,
+   "born": "2002-09-16",
+   "status": "Formado localmente",
+   "ph": "MillanJimenez"
+  },
+  {
+   "num": 17,
+   "name": "Boris Tisma",
+   "pos": "Ala-pívot",
+   "height": 2.04,
+   "born": "2002-02-20",
+   "status": "Formado localmente",
+   "ph": "BorisTisma"
+  },
+  {
+   "num": 20,
+   "name": "Jehyve Floyd",
+   "pos": "Pívot",
+   "height": 2.04,
+   "born": "1997-06-27",
+   "status": "Extracomunitario",
+   "ph": "JehyveFloyd"
+  },
+  {
+   "num": 22,
+   "name": "Juampi Vaulet",
+   "pos": "Ala-pívot",
+   "height": 1.99,
+   "born": "1996-03-22",
+   "status": "Comunitario",
+   "ph": "JuampiVaulet",
+   "hl": [
+    "11 pts · 7 reb · 15 val ante Caja 87 (27 sep)",
+    "9 reb ante Gipuzkoa (11 oct)"
+   ],
+   "val": 17.3
+  },
+  {
+   "num": 51,
+   "name": "Omar Silverio",
+   "pos": "Escolta",
+   "height": 1.9,
+   "born": "1998-11-05",
+   "status": "Cotonú",
+   "ph": "OmarSilverio",
+   "hl": [
+    "27 pts (6/13 en triples) y 3 ast ante Palencia (18 oct)"
+   ],
+   "val": null
+  }
+ ],
+ "staff": [
+  [
+   "Toni Ten",
+   "Entrenador"
   ],
-  "history":[
-    "2025-26: campeón de la Copa de España de Primera/Segunda FEB (primer título; MVP Lotanna Nwogbo)",
-    "2025-26: finalista de la Final Four de Primera FEB (Toni Ten, entrenador desde 2025)",
-    "Verano 2026: 8 medallas internacionales de la cantera con las selecciones españolas"
+  [
+   "Manuel Gil",
+   "Entrenador ayudante"
   ],
-  "fixtures":[],
-  "standings":[],
-  "roster":[],
-  "_help":"fixtures: {round,comp,date(ISO),home(bool),rival,ptsFor,ptsAgainst} (puntos null si no jugado). standings: {pos,team,pj,w,l,pf,pc}. roster: {num,name,pos,height,age,ppg,rpg,apg,val}."
+  [
+   "Jack Burgess",
+   "Entrenador ayudante"
+  ],
+  [
+   "Sergio Jiménez",
+   "Entrenador ayudante"
+  ],
+  [
+   "Adolfo González",
+   "Delegado"
+  ],
+  [
+   "León Lansac",
+   "Preparador físico"
+  ],
+  [
+   "Nicolás Martínez",
+   "Preparador físico"
+  ],
+  [
+   "Óscar Otín",
+   "Fisioterapeuta"
+  ],
+  [
+   "José Alberto Espinosa",
+   "Fisioterapeuta"
+  ],
+  [
+   "Lara Jiménez",
+   "Psicóloga"
+  ],
+  [
+   "Alfonso Romero",
+   "Nutricionista"
+  ],
+  [
+   "Mario Mena",
+   "Responsable de material"
+  ]
+ ]
 }

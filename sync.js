@@ -3,6 +3,7 @@ const TEAM=(process.env.TEAM_MATCH||'estudiantes').toLowerCase();
 const G=process.env.FEB_GROUP||'1',T=process.env.FEB_SEASON||'2026';
 const BASE='https://competiciones.feb.es/estadisticas/';
 const PAGES={results:`${BASE}Resultados.aspx?g=${G}&t=${T}`,standings:`${BASE}Clasificacion.aspx?g=${G}&t=${T}`};
+const S365='https://www.365scores.com/es/basketball/team/movistar-estudiantes-220/standings';
 const FILE=path.join(process.env.DATA_DIR||'/tmp','sync-state.json');
 let state={lastSync:null,ok:false,errors:[],fixtures:[],standings:[],roster:[],rawLen:{}};
 try{state={...state,...JSON.parse(fs.readFileSync(FILE,'utf8'))}}catch(e){}
@@ -30,9 +31,11 @@ function parseFixtures(html){const $=cheerio.load(html),out=[];let rnd=null;
     const home=mine===0,[a,b]=sc?sc.split(/[-–]/).map(num):[null,null],p=n=>String(n).padStart(2,'0');
     out.push({round:rnd,comp:'Primera FEB',date:`${dm[3]}-${p(dm[2])}-${p(dm[1])}T${p(dm[4]||0)}:${p(dm[5]||0)}:00`,home,rival:teams[home?1:0],ptsFor:sc?(home?a:b):null,ptsAgainst:sc?(home?b:a):null})});
   return out}
+function parse365(html){const $=cheerio.load(html),out=[];$('tr').each((_,tr)=>{const c=cells($,tr),i=c.findIndex(x=>/^\d{1,2}\s+\D/.test(x));if(i<0)return;const m=c[i].match(/^(\d{1,2})\s+(.+)$/),n=c.slice(i+1).filter(x=>/^\d+$/.test(x)).map(Number);if(n.length>=4)out.push({pos:+m[1],team:m[2],pj:n[0],w:n[1],l:n[2],pts:n[3],pf:0,pc:0})});return out}
 async function sync(){const errors=[];let fx=[],st=[];
   try{const h=await get(PAGES.results);state.rawLen.results=h.length;fx=parseFixtures(h);st=parseStandings(h)}catch(e){errors.push(e.message)}
   try{const h=await get(PAGES.standings);state.rawLen.standings=h.length;const s=parseStandings(h);if(s.length)st=s}catch(e){errors.push(e.message)}
+  if(!st.length){try{const h=await get(S365);state.rawLen.s365=h.length;st=parse365(h)}catch(e){errors.push(e.message)}}
   if(fx.length)state.fixtures=fx;if(st.length)state.standings=st;
-  state.errors=errors;state.lastSync=new Date().toISOString();state.ok=!errors.length&&(fx.length>0||st.length>0);persist();return state}
+  state.errors=errors;state.lastSync=new Date().toISOString();state.ok=(fx.length>0||st.length>0);persist();return state}
 module.exports={sync,get,PAGES,getState:()=>state};

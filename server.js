@@ -13,7 +13,9 @@ async function news(){
   return cache.items;
 }
 app.get('/api/data',(q,r)=>{try{const d=readData(),s=S.getState();
-  for(const k of ['fixtures','standings','roster'])if(s[k]&&s[k].length)d[k]=s[k];
+  if(s.standings.length)d.standings=s.standings;
+  const key=f=>f.date.slice(0,10),m=new Map(d.fixtures.map(f=>[key(f),f]));
+  s.fixtures.forEach(f=>{const o=m.get(key(f));if(!o||(f.ptsFor!=null&&o.ptsFor==null))m.set(key(f),{...o,...f})});d.fixtures=[...m.values()];
   d.sync={lastSync:s.lastSync,ok:s.ok,errors:s.errors,counts:{fixtures:s.fixtures.length,standings:s.standings.length,roster:s.roster.length}};
   r.json(d)}catch(e){r.status(500).json({error:e.message})}});
 app.get('/api/news',async(q,r)=>r.json(await news()));
@@ -21,5 +23,4 @@ app.get('/api/sync',async(q,r)=>r.json(await S.sync()));
 app.get('/api/debug/raw',async(q,r)=>{try{const h=await S.get(S.PAGES[q.query.page]||S.PAGES.results);r.type('text').send(h.slice(0,+q.query.n||4000))}catch(e){r.status(500).send(e.message)}});
 app.get('/health',(q,r)=>r.send('ok'));
 app.use(express.static(path.join(__dirname,'public')));
-app.get('/',(q,r)=>{const f=[path.join(__dirname,'public','index.html'),path.join(__dirname,'index.html')].find(x=>fs.existsSync(x));f?r.sendFile(f):r.status(404).send('index.html no encontrado. Archivos: '+fs.readdirSync(__dirname).join(', '))});
 app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);S.sync();setInterval(S.sync,MIN*60e3)});
