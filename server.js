@@ -17,7 +17,7 @@ app.get('/api/data',(q,r)=>{try{const d=readData(),s=S.getState();
   if(s.standings.length)d.standings=s.standings;
   const key=f=>f.date.slice(0,10),m=new Map(d.fixtures.map(f=>[key(f),f]));
   s.fixtures.forEach(f=>{const o=m.get(key(f));if(!o||(f.ptsFor!=null&&o.ptsFor==null))m.set(key(f),{...o,...f})});d.fixtures=[...m.values()];
-  d.sync={lastSync:s.lastSync,ok:s.ok,errors:s.errors,counts:{fixtures:s.fixtures.length,standings:s.standings.length,roster:s.roster.length}};
+  d.sync={lastSync:s.lastSync,ok:s.ok,errors:s.errors,sample:s.sample||[],counts:{fixtures:s.fixtures.length,standings:s.standings.length,roster:s.roster.length}};
   const a=Object.values(ST.state().players),pn=d.fixtures.filter(f=>f.ptsFor!=null).length,sp=ST.state();
   d.roster.forEach(p=>{const k=ST.KEYS.find(k=>ST.norm(p.name).includes(k)),lg=k&&sp.players[k];if(lg&&Object.keys(lg).length){p.log={...(p.log||{}),...lg};const v=Object.values(p.log);if(p.ppg==null||v.length>=pn)p.ppg=Math.round(v.reduce((x,y)=>x+y,0)/v.length*10)/10}
     for(const[m,f]of[['val','val'],['pts','ppg'],['reb','rpg'],['ast','apg']]){const e=sp.leaders&&sp.leaders[m]&&sp.leaders[m].find(x=>x.k==k);if(e)p[f]=e.v}});
@@ -25,6 +25,7 @@ app.get('/api/data',(q,r)=>{try{const d=readData(),s=S.getState();
   d.roster.forEach(p=>{const k=ST.KEYS.find(k=>ST.norm(p.name).includes(k)),x=k&&rg[k];if(!x)return;const g=x.pg||{},a=x.adv||{};
     Object.assign(p,{gp:g.GP,min:g.MIN,ppg:g.PTS,rpg:g.REB,apg:g.AST,spg:g.STL,bpg:g.BLK,tov:g.TOV,fg:g['FG%'],tp:g['3P%'],ft:g['FT%'],ts:a['TS%'],usg:a['USG%'],per:a.PER,ortg:a.ORtg,drtg:a.DRtg});
     (x.games||[]).forEach(m=>{const j=rk[m.date];if(j){(p.log=p.log||{})[j]=m.pts;(p.gl=p.gl||{})[j]=m}})});
+  Object.entries(sp.results||{}).forEach(([j,r])=>{const f=d.fixtures.find(x=>x.round==j);if(f&&f.ptsFor==null){f.ptsFor=r.f;f.ptsAgainst=r.a}});
   d.sync.rg={lastSync:RG.state().lastSync,ok:RG.state().ok,errors:RG.state().errors};
   d.mvps=sp.mvps;d.sync.stats={lastSync:sp.lastSync,ok:sp.ok,errors:sp.errors,games:sp.games};
   r.json(d)}catch(e){r.status(500).json({error:e.message})}});
@@ -41,4 +42,4 @@ app.get('/img',async(q,r)=>{try{const u=new URL(q.query.u);if(!/(^|\.)(movistare
   r.set('Content-Type',c.t).set('Cache-Control','public,max-age=604800').send(c.b)}catch(e){r.sendStatus(404)}});
 app.get('/health',(q,r)=>r.send('ok'));
 app.use(express.static(path.join(__dirname,'public')));
-app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);const safe=f=>()=>Promise.resolve().then(f).catch(e=>console.error('sync',e&&e.message));setTimeout(()=>[S.sync,ST.sync,RG.sync].forEach(f=>safe(f)()),4000);[S.sync,ST.sync,RG.sync].forEach(f=>setInterval(safe(f),MIN*60e3))});
+app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);const safe=f=>()=>Promise.resolve().then(f).catch(e=>console.error('sync',e&&e.message));setTimeout(()=>[S.sync,ST.sync,RG.sync].forEach(f=>safe(f)()),4000);[S.sync,ST.sync].forEach(f=>setInterval(safe(f),MIN*60e3));setInterval(safe(RG.sync),(+process.env.RG_MINUTES||180)*60e3)});

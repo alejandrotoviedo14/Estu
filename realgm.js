@@ -13,6 +13,6 @@ function parsePlayer(html){const $=cheerio.load(html),o={pg:{},tot:{},adv:{},gam
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function sync(){const errors=[];
   try{const $=cheerio.load(await get(ROSTER));$('a[href*="/player/"]').each((_,a)=>{const k=KEYS.find(k=>norm($(a).text()).includes(k)),h=$(a).attr('href');if(k&&/Summary\/\d+/.test(h||''))st.ids[k]=h.startsWith('http')?h:'https://basketball.realgm.com'+h})}catch(e){errors.push('roster: '+e.message)}
-  let ok=0;for(const[k,u]of Object.entries(st.ids)){try{const p=parsePlayer(await get(u)),old=st.players[k]||{games:[]},by=Object.fromEntries([...old.games,...p.games].map(g=>[g.date,g]));if(Object.keys(p.pg).length){st.players[k]={...p,games:Object.values(by).sort((a,b)=>a.date<b.date?-1:1)};ok++}}catch(e){errors.push(k+': '+e.message)}await sleep(900)}
+  let ok=0;for(const[k,u]of Object.entries(st.ids)){try{const p=parsePlayer(await get(u)),old=st.players[k]||{games:[]},by=Object.fromEntries([...old.games,...p.games].map(g=>[g.date,g]));if(Object.keys(p.pg).length){st.players[k]={...p,games:Object.values(by).sort((a,b)=>a.date<b.date?-1:1)};ok++}}catch(e){errors.push(k+': '+e.message);if(/403/.test(e.message)&&!process.env.SCRAPER_URL){errors.push('RealGM bloquea a este servidor (403). Hace falta la variable SCRAPER_URL.');break}}await sleep(900)}
   st.ok=ok>0;st.errors=errors.slice(0,8);st.lastSync=new Date().toISOString();try{fs.writeFileSync(FILE,JSON.stringify(st))}catch(e){}return st}
 module.exports={sync,state:()=>st,parsePlayer};
