@@ -1,3 +1,4 @@
+process.on('uncaughtException',e=>console.error('uncaught',e));process.on('unhandledRejection',e=>console.error('unhandled',e));
 const express=require('express'),fs=require('fs'),path=require('path'),S=require('./sync'),ST=require('./stats'),RG=require('./realgm');
 const app=express(),PORT=process.env.PORT||3000,MIN=+process.env.SYNC_MINUTES||10;
 const readData=()=>JSON.parse(fs.readFileSync(path.join(__dirname,'data.json'),'utf8'));
@@ -6,7 +7,7 @@ async function news(){
   if(Date.now()-cache.t<6e5) return cache.items;
   try{
     const url='https://news.google.com/rss/search?q='+encodeURIComponent('"Movistar Estudiantes" when:14d')+'&hl=es&gl=ES&ceid=ES:es';
-    const xml=await (await fetch(url)).text();
+    const xml=await (await fetch(url,{signal:AbortSignal.timeout(8000)})).text();
     const g=(s,t)=>{const r=s.match(new RegExp('<'+t+'[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?</'+t+'>'));return r?r[1].trim():''};
     cache={t:Date.now(),items:[...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0,25).map(m=>({title:g(m[1],'title'),link:g(m[1],'link'),date:g(m[1],'pubDate'),source:g(m[1],'source')}))};
   }catch(e){console.error('news',e.message)}
@@ -36,8 +37,8 @@ app.get('/api/rg-sync',async(q,r)=>r.json(await RG.sync()));
 app.get('/api/rg-status',(q,r)=>r.json(RG.state()));
 const IMG=new Map();
 app.get('/img',async(q,r)=>{try{const u=new URL(q.query.u);if(!/(^|\.)(movistarestudiantes\.com|365scores\.com)$/.test(u.hostname))return r.sendStatus(403);
-  let c=IMG.get(u.href);if(!c){const x=await fetch(u.href,{headers:{'user-agent':'Mozilla/5.0','referer':u.origin+'/','accept':'image/*'}});if(!x.ok)return r.sendStatus(404);c={t:x.headers.get('content-type')||'image/jpeg',b:Buffer.from(await x.arrayBuffer())};if(IMG.size>300)IMG.delete(IMG.keys().next().value);IMG.set(u.href,c)}
+  let c=IMG.get(u.href);if(!c){const x=await fetch(u.href,{signal:AbortSignal.timeout(8000),headers:{'user-agent':'Mozilla/5.0','referer':u.origin+'/','accept':'image/*'}});if(!x.ok)return r.sendStatus(404);c={t:x.headers.get('content-type')||'image/jpeg',b:Buffer.from(await x.arrayBuffer())};if(IMG.size>300)IMG.delete(IMG.keys().next().value);IMG.set(u.href,c)}
   r.set('Content-Type',c.t).set('Cache-Control','public,max-age=604800').send(c.b)}catch(e){r.sendStatus(404)}});
 app.get('/health',(q,r)=>r.send('ok'));
 app.use(express.static(path.join(__dirname,'public')));
-app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);S.sync();ST.sync();RG.sync();setInterval(S.sync,MIN*60e3);setInterval(ST.sync,MIN*60e3);setInterval(RG.sync,MIN*60e3)});
+app.listen(PORT,'0.0.0.0',()=>{console.log('Estudiantes tracker on '+PORT);const safe=f=>()=>Promise.resolve().then(f).catch(e=>console.error('sync',e&&e.message));setTimeout(()=>[S.sync,ST.sync,RG.sync].forEach(f=>safe(f)()),4000);[S.sync,ST.sync,RG.sync].forEach(f=>setInterval(safe(f),MIN*60e3))});
