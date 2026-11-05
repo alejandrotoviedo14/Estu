@@ -31,7 +31,7 @@ app.get('/api/data',(q,r)=>{try{const d=readData(),s=S.getState();
   r.json(d)}catch(e){r.status(500).json({error:e.message})}});
 app.get('/api/news',async(q,r)=>r.json(await news()));
 app.get('/api/sync',async(q,r)=>r.json(await S.sync()));
-app.get('/api/debug/raw',async(q,r)=>{try{const h=await S.get(S.PAGES[q.query.page]||S.PAGES.results);r.type('text').send(h.slice(0,+q.query.n||4000))}catch(e){r.status(500).send(e.message)}});
+if(process.env.DEBUG_RAW)app.get('/api/debug/raw',async(q,r)=>{try{const h=await S.get(S.PAGES[q.query.page]||S.PAGES.results);r.type('text').send(h.slice(0,+q.query.n||4000))}catch(e){r.status(500).send(e.message)}});
 app.get('/api/stats-sync',async(q,r)=>r.json(await ST.sync()));
 app.get('/api/stats-status',(q,r)=>r.json(ST.state()));
 app.get('/api/rg-sync',async(q,r)=>r.json(await RG.sync()));
