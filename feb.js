@@ -10,7 +10,7 @@ const CFG = {
   teamId: process.env.FEB_TEAM_ID || '1010493',     // Movistar Estudiantes
   icsUrl: process.env.ICS_URL || 'https://calendar.google.com/calendar/ical/8f9841fadce9be548c94e378f5639fc0eac0310cd23f1c3c75703446d38dd1bd%40group.calendar.google.com/public/basic.ics'
 };
-const FILE = path.join(process.env.DATA_DIR || '/tmp', 'feb-state.json');
+const FILE = path.join(process.env.DATA_DIR || path.join(__dirname, 'data'), 'feb-state.json');
 
 // ---------- utilidades ----------
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -204,7 +204,7 @@ function parseAgendaItem(e) {
 // ---------- estado y sincronización ----------
 let state = { lastSync: null, ok: false, errors: [], rounds: [], standings: [], roster: [], matches: {}, agenda: [], agendaSync: null };
 try { state = { ...state, ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch (e) { }
-const persist = () => { try { fs.writeFileSync(FILE, JSON.stringify(state)); } catch (e) { } };
+const persist = () => { try { fs.mkdirSync(path.dirname(FILE), { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(state)); } catch (e) { console.error("persist", e.message); } };
 
 async function syncAgenda() {
   try {
@@ -257,6 +257,24 @@ async function getMatch(id) {
 const SIDE = { ours: 'home' };
 function ourSide(m) { return m.home.id === CFG.teamId ? { me: m.home, opp: m.away, home: true } : { me: m.away, opp: m.home, home: false }; }
 
+// Ficha de cada rival: clasificación, resultados de la temporada y partido contra nosotros
+function rivals() {
+  const byId = {};
+  const std = Object.fromEntries(state.standings.filter(s => s.teamId).map(s => [s.teamId, s]));
+  const nameOf = (id, fallback) => (std[id] && std[id].team) || toTitleName(fallback);
+  for (const r of state.rounds) for (const m of r.matches) {
+    for (const home of [true, false]) {
+      const id = home ? m.homeId : m.awayId, opp = home ? m.awayId : m.homeId;
+      if (!id) continue;
+      const t = byId[id] || (byId[id] = { id, name: nameOf(id, home ? m.home : m.away), standing: std[id] || null, results: [] });
+      t.results.push({ round: r.round, date: m.date, home, rivalId: opp, rival: nameOf(opp, home ? m.away : m.home),
+        res: m.played ? (home ? [m.hs, m.as] : [m.as, m.hs]) : null, vsUs: opp === CFG.teamId });
+    }
+  }
+  return Object.values(byId).map(t => ({ ...t, results: t.results.sort((a, b) => a.round - b.round) }));
+}
+const toTitleName = s => toTitle(clean(s)).replace(/\b(Cb|Hla|Fibwi|Lf|Sdp|Bc)\b/g, w => w.toUpperCase());
+
 function build() {
   const rounds = state.rounds, roundOf = {};
   rounds.forEach(r => r.matches.forEach(m => { if (m.partido) roundOf[m.partido] = r.round; }));
@@ -283,6 +301,18 @@ function build() {
   }
   const avg = (v, n) => n ? +(v / n).toFixed(1) : null;
   const pct = ([m, a]) => a ? +(m / a).toFixed(3) : null;
+  // Totales del equipo para métricas avanzadas (suma de todos los jugadores de la temporada)
+  const teamAdv = Object.values(pl).reduce((t, o) => ({ fga: t.fga + o.fg[1], fta: t.fta + o.ft[1], tov: t.tov + o.tov, min: t.min + o.min }), { fga: 0, fta: 0, tov: 0, min: 0 });
+  // Métricas avanzadas por jugador (fórmulas estándar de baloncesto)
+  const adv = o => {
+    const fga = o.fg[1], fta = o.ft[1];
+    return {
+      ts: (fga + 0.44 * fta) ? +(o.pts / (2 * (fga + 0.44 * fta))).toFixed(3) : null,
+      efg: fga ? +((o.fg[0] + 0.5 * o.t3[0]) / fga).toFixed(3) : null,
+      astTo: o.tov ? +(o.ast / o.tov).toFixed(2) : (o.ast ? o.ast : null),
+      usg: (o.min && teamAdv.min) ? +(100 * (fga + 0.44 * fta + o.tov) * (teamAdv.min / 5) / (o.min * (teamAdv.fga + 0.44 * teamAdv.fta + teamAdv.tov))).toFixed(1) : null
+    };
+  };
 
   // Plantilla: identidad y fotos del club (movistarestudiantes.com), estadísticas de la FEB (box scores).
   // Se cruzan por dorsal + apellido. Lo que no esté en una fuente se completa con la otra.
@@ -307,6 +337,7 @@ function build() {
     const extraSt = st ? {
       gp: st.gp, min: avg(st.min, st.gp), ppg: avg(st.pts, st.gp), rpg: avg(st.reb, st.gp), apg: avg(st.ast, st.gp), spg: avg(st.stl, st.gp), bpg: avg(st.blk, st.gp), tov: avg(st.tov, st.gp), pf: avg(st.fouls, st.gp),
       fg: pct(st.fg), tp: pct(st.t3), ft: pct(st.ft), t2: pct(st.t2), val: avg(st.val, st.gp), pm: avg(st.pm, st.gp),
+      ...adv(st),
       totals: { pts: st.pts, reb: st.reb, ast: st.ast, stl: st.stl, blk: st.blk, tov: st.tov, fgm: st.fg[0], fga: st.fg[1], tpm: st.t3[0], tpa: st.t3[1], ftm: st.ft[0], fta: st.ft[1] },
       log: st.log, gl: st.gl
     } : { gp: 0 };
@@ -315,7 +346,9 @@ function build() {
       born: base.born || feb.born || null, birthplace: feb.birthplace || '', status: feb.status || base.category || '',
       category: base.category || '', photo: base.photo || null, profile: base.profile || null,
       career: (base.profile && club.career && club.career[base.profile]) || [],
-      formed: feb.formed ?? null, hl: (ex && ex.hl) || [], ...extraSt
+      formed: feb.formed ?? null, hl: (ex && ex.hl) || [], ...extraSt,
+      // La web del club publica el 1 de enero cuando no conoce la fecha: se marca para no mostrarla como cierta
+      bornUnverified: !!(base.born && /-01-01$/.test(base.born))
     };
   });
 
@@ -364,6 +397,7 @@ function build() {
     roster,
     teamStats,
     agenda: state.agenda,
+    rivals: rivals(),
     record: { w: ourMatches.filter(m => ourSide(m).me.pts > ourSide(m).opp.pts).length, l: ourMatches.filter(m => ourSide(m).me.pts < ourSide(m).opp.pts).length }
   };
 }

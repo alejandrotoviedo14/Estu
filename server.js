@@ -2,6 +2,8 @@ process.on('uncaughtException', e => console.error('uncaught', e));
 process.on('unhandledRejection', e => console.error('unhandled', e));
 const express = require('express'), fs = require('fs'), path = require('path'), F = require('./feb'), C = require('./club'), ICS = require('./ics');
 
+// Persistencia: DATA_DIR debe apuntar a un volumen que sobreviva a reinicios (si no, se usa ./data)
+if (!process.env.DATA_DIR) console.warn("[aviso] DATA_DIR no configurado: el estado se guarda en ./data (efímero en algunos hostings)");
 const app = express(), PORT = process.env.PORT || 3000, MIN = +process.env.SYNC_MINUTES || 15;
 const readStatic = () => JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8'));
 
@@ -15,9 +17,9 @@ function payload() {
     key, body: {
       season: s.season, motto: s.motto, club: s.club, teams: s.teams, history: s.history,
       staff: (cs.staff && cs.staff.length) ? cs.staff : s.staff,
-      fixtures: b.fixtures, standings: b.standings, roster: b.roster, teamStats: b.teamStats, agenda: b.agenda, record: b.record,
+      fixtures: b.fixtures, standings: b.standings, roster: b.roster, teamStats: b.teamStats, agenda: b.agenda, record: b.record, rivals: b.rivals,
       sync: {
-        lastSync: st.lastSync, ok: st.ok, errors: st.errors, agendaSync: st.agendaSync,
+        lastSync: st.lastSync, ok: st.ok, errors: st.errors, agendaSync: st.agendaSync, clubSync: cs.lastSync, storage: process.env.DATA_DIR ? "DATA_DIR" : "./data (por defecto)",
         counts: { fixtures: b.fixtures.length, played: b.fixtures.filter(f => f.ptsFor != null).length, standings: b.standings.length, roster: b.roster.length, actas: Object.keys(st.matches).length, agenda: b.agenda.length }
       }
     }

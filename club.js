@@ -5,7 +5,7 @@ const cheerio = require('cheerio'), fs = require('fs'), path = require('path');
 
 const SITE = 'https://www.movistarestudiantes.com';
 const ROSTER_URL = process.env.CLUB_ROSTER_URL || `${SITE}/plantilla-masculina/`;
-const FILE = path.join(process.env.DATA_DIR || '/tmp', 'club-state.json');
+const FILE = path.join(process.env.DATA_DIR || path.join(__dirname, 'data'), 'club-state.json');
 
 const clean = s => String(s ?? '').replace(/\s+/g, ' ').replace(/ /g, ' ').trim();
 const toTitle = s => s.toLocaleLowerCase('es').replace(/(^|[\s'-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase('es'));
@@ -52,16 +52,20 @@ function parseCareer(html) {
   const stops = ['info@', '©', 'Aviso Legal'].map(x => t.indexOf(x, i)).filter(x => x > i);
   const end = stops.length ? Math.min(...stops) : t.length;
   const seg = t.slice(i + 'Temporadas en el club'.length, end);
+  // Cada entrada empieza por la temporada ("2025-26" o "2025-27") seguida de "Club." y opcionalmente "Liga."
   const out = [];
-  for (const m of seg.matchAll(/(\d{4}-\d{4})\s+([^.]+?)\.\s+([^.]+?)\.(?=\s|$)/g)) {
-    out.push({ season: m[1], club: clean(m[2]), league: clean(m[3]) });
+  for (const chunk of seg.split(/(?=\b\d{4}-(?:\d{4}|\d{2})\s)/)) {
+    const m = chunk.trim().match(/^(\d{4}-(?:\d{4}|\d{2}))\s+(.*)$/);
+    if (!m) continue;
+    const [club, league = ''] = m[2].split(/\.\s*/).map(clean);
+    if (club) out.push({ season: m[1], club, league });
   }
   return out;
 }
 
 let state = { lastSync: null, roster: null, staff: [], career: {} };
 try { state = { ...state, ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch (e) { }
-const persist = () => { try { fs.writeFileSync(FILE, JSON.stringify(state)); } catch (e) { } };
+const persist = () => { try { fs.mkdirSync(path.dirname(FILE), { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(state)); } catch (e) { console.error("persist", e.message); } };
 
 // Sincroniza plantilla; los perfiles (historial) se piden una vez por jugador y se cachean
 async function sync() {

@@ -1,0 +1,15 @@
+{
+  "name": "Movistar Estudiantes · Season Mode",
+  "short_name": "Estudiantes",
+  "description": "Calendario, resultados, clasificación y estadísticas del Movistar Estudiantes",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05060d",
+  "theme_color": "#05060d",
+  "lang": "es",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

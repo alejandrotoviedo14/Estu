@@ -30,3 +30,19 @@ Variables de entorno opcionales: `PORT`, `DATA_DIR` (donde se guarda el estado),
 - `GET /calendario/partido/:id.ics`: un partido para el calendario del móvil.
 - `GET /calendario/temporada.ics`: todos los partidos de la temporada.
 - `GET /api/news`, `GET /health`.
+
+## Tests
+
+```bash
+node --test tests/parsers.test.js
+```
+
+Los tests usan HTML guardado en `tests/fixtures/` de la FEB, el club y los perfiles de jugador. Si una web cambia su maquetación, fallan y avisan antes de que la web se rompa.
+
+## Persistencia
+
+El estado (partidos cacheados, plantilla, historial) se guarda en `DATA_DIR`. Si no se define, se usa `./data`, que está en `.gitignore`. En un hosting con disco efímero, apunta `DATA_DIR` a un volumen persistente.
+
+## App instalable
+
+La web tiene `manifest.webmanifest` y un service worker (`public/sw.js`). Se puede añadir a la pantalla de inicio y, con la última versión de los datos guardada, se consulta sin conexión.
