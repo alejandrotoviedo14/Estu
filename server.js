@@ -51,7 +51,15 @@ app.get('/api/match/:id', async (q, r) => {
   try { r.json(await F.getMatch(id)); }
   catch (e) { r.status(502).json({ error: e.message }); }
 });
-app.get('/api/sync', async (q, r) => { await runSync(); const st = F.state(); r.json({ ok: st.ok, lastSync: st.lastSync, errors: st.errors }); });
+// Sincronización manual: como mucho una cada SYNC_COOLDOWN segundos (por defecto 120). Si se define SYNC_TOKEN, se exige ?token=.
+const COOLDOWN = (+process.env.SYNC_COOLDOWN || 120) * 1e3;
+app.get('/api/sync', async (q, r) => {
+  if (process.env.SYNC_TOKEN && q.query.token !== process.env.SYNC_TOKEN) return r.status(403).json({ error: 'token no válido' });
+  const st0 = F.state(), wait = st0.lastSync ? COOLDOWN - (Date.now() - new Date(st0.lastSync)) : 0;
+  if (wait > 0 && !syncing) return r.status(429).set('Retry-After', String(Math.ceil(wait / 1e3)))
+    .json({ ok: st0.ok, lastSync: st0.lastSync, errors: st0.errors, throttled: true, retryAfter: Math.ceil(wait / 1e3) });
+  await runSync(); const st = F.state(); r.json({ ok: st.ok, lastSync: st.lastSync, errors: st.errors });
+});
 
 // Noticias (Google News RSS), cacheadas 10 min
 let newsCache = { t: 0, items: [] };

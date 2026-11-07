@@ -103,3 +103,27 @@ test('perfiles del club: formatos de temporada "2025-27" y entradas sin liga', (
   assert.equal(tis[1].club, 'Zadar');
   assert.ok(tis.every(e => /^\d{4}-\d{2,4}$/.test(e.season)));
 });
+
+test('cruce de plantillas: apellidos cortos y dorsal', () => {
+  const club = [{ name: 'Juan Paz', num: 7 }, { name: 'Léo Westermann', num: 5 }, { name: 'Kaspar Treier', num: 22 }];
+  const feb = [{ name: 'Juan Paz Gil', num: 7 }, { name: 'Leo Westermann', num: 9 }, { name: 'Kaspar Treier', num: 22 }, { name: 'Otro Jugador', num: 3 }];
+  const pairs = F.matchRosters(club, feb);
+  const of = n => pairs.find(p => p.c && p.c.name === n).f;
+  assert.equal(of('Juan Paz').name, 'Juan Paz Gil', 'apellido de 3 letras con mismo dorsal');
+  assert.equal(of('Léo Westermann').name, 'Leo Westermann', 'cambio de dorsal: se cruza por apellido largo');
+  assert.equal(of('Kaspar Treier').num, 22);
+  assert.equal(pairs.length, 4, 'el jugador sin pareja se añade una sola vez');
+  // Mismo dorsal pero ningún nombre en común: no se cruzan
+  const p2 = F.matchRosters([{ name: 'Ana Ruiz', num: 4 }], [{ name: 'Marta Sanz', num: 4 }]);
+  assert.equal(p2.length, 2);
+});
+
+test('récord: sale del calendario aunque falte el acta', () => {
+  const fx = [{ ptsFor: 80, ptsAgainst: 70 }, { ptsFor: 60, ptsAgainst: 75 }, { ptsFor: null, ptsAgainst: null }, { ptsFor: 90, ptsAgainst: 88 }];
+  assert.deepEqual(F.recordOf(fx), { w: 2, l: 1 });
+  const st = F.state(), bak = { rounds: st.rounds, matches: st.matches, roster: st.roster };
+  st.rounds = [{ round: 1, date: '2026-09-27', matches: [{ round: 1, date: '2026-09-27', homeId: F.CFG.teamId, home: 'MOVISTAR ESTUDIANTES', awayId: '99', away: 'RIVAL', partido: '123', played: true, hs: 85, as: 70 }] }];
+  st.matches = {}; st.roster = [];
+  try { assert.deepEqual(F.build().record, { w: 1, l: 0 }, 'sin acta descargada'); }
+  finally { Object.assign(st, bak); }
+});
