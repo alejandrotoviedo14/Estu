@@ -360,10 +360,10 @@ function build() {
     const k = norm(feb.name || name), st = pl[k] || null;
     const ex = extra.find(x => nameTokens(x.name).some(t => nameTokens(name).includes(t)) && (x.num === undefined || x.num === (base.num ?? feb.num)));
     const extraSt = st ? {
-      gp: st.gp, min: avg(st.min, st.gp), ppg: avg(st.pts, st.gp), rpg: avg(st.reb, st.gp), apg: avg(st.ast, st.gp), spg: avg(st.stl, st.gp), bpg: avg(st.blk, st.gp), tov: avg(st.tov, st.gp), pf: avg(st.fouls, st.gp),
+      gp: st.gp, min: avg(st.min, st.gp), ppg: avg(st.pts, st.gp), rpg: avg(st.reb, st.gp), orpg: avg(st.orb, st.gp), drpg: avg(st.drb, st.gp), apg: avg(st.ast, st.gp), spg: avg(st.stl, st.gp), bpg: avg(st.blk, st.gp), tov: avg(st.tov, st.gp), pf: avg(st.fouls, st.gp),
       fg: pct(st.fg), tp: pct(st.t3), ft: pct(st.ft), t2: pct(st.t2), val: avg(st.val, st.gp), pm: avg(st.pm, st.gp),
       ...adv(st),
-      totals: { pts: st.pts, reb: st.reb, ast: st.ast, stl: st.stl, blk: st.blk, tov: st.tov, fgm: st.fg[0], fga: st.fg[1], tpm: st.t3[0], tpa: st.t3[1], ftm: st.ft[0], fta: st.ft[1] },
+      totals: { min: Math.round(st.min), pts: st.pts, reb: st.reb, orb: st.orb, drb: st.drb, ast: st.ast, pf: st.fouls, val: st.val, pm: st.pm, stl: st.stl, blk: st.blk, tov: st.tov, fgm: st.fg[0], fga: st.fg[1], tpm: st.t3[0], tpa: st.t3[1], ftm: st.ft[0], fta: st.ft[1] },
       log: st.log, gl: st.gl
     } : { gp: 0 };
     return {
