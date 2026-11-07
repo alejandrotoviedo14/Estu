@@ -244,13 +244,20 @@ async function sync() {
 }
 
 // Acta sobre demanda (partidos de otros equipos) con caché
+// Solo se guardan en disco los partidos de nuestro equipo; los demás van a una caché en memoria con tope,
+// para que pedir IDs arbitrarios no haga crecer el estado sin límite.
+const OTHER = new Map(), OTHER_MAX = 100;
 async function getMatch(id) {
-  if (!state.matches[id]) {
-    const m = parseMatch(await get(URLS.match(id)), id);
-    if (!m.played) return m;
-    state.matches[id] = m; persist();
+  if (state.matches[id]) return state.matches[id];
+  if (OTHER.has(id)) return OTHER.get(id);
+  const m = parseMatch(await get(URLS.match(id)), id);
+  if (!m.played) return m;
+  if (m.home.id === CFG.teamId || m.away.id === CFG.teamId) { state.matches[id] = m; persist(); }
+  else {
+    if (OTHER.size >= OTHER_MAX) OTHER.delete(OTHER.keys().next().value);
+    OTHER.set(id, m);
   }
-  return state.matches[id];
+  return m;
 }
 
 // ---------- agregados (lo que consume la web) ----------
@@ -274,6 +281,32 @@ function rivals() {
   return Object.values(byId).map(t => ({ ...t, results: t.results.sort((a, b) => a.round - b.round) }));
 }
 const toTitleName = s => toTitle(clean(s)).replace(/\b(Cb|Hla|Fibwi|Lf|Sdp|Bc)\b/g, w => w.toUpperCase());
+
+// Palabras significativas de un nombre (sin partículas). Se admiten apellidos cortos (Paz, Gil...).
+const PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'da', 'do', 'dos', 'van', 'von', 'y', 'jr', 'sr']);
+const nameTokens = s => norm(s).split(/[^a-z0-9]+/).filter(t => t.length >= 3 && !PARTICLES.has(t));
+
+// Empareja la plantilla del club con la de la FEB.
+// 1) mismo dorsal y alguna palabra del nombre en común; 2) sin dorsal coincidente, al menos dos palabras en común
+// (o una de 5+ letras). Lo que queda sin pareja se añade solo.
+function matchRosters(clubRoster, febRoster) {
+  const used = new Set(), pairs = clubRoster.map(c => ({ c, f: null }));
+  const shared = (a, b) => { const tb = nameTokens(b); return nameTokens(a).filter(t => tb.includes(t)); };
+  const pick = test => pairs.forEach(p => {
+    if (p.f) return;
+    const f = febRoster.find(x => !used.has(x) && test(p.c, x));
+    if (f) { used.add(f); p.f = f; }
+  });
+  pick((c, x) => c.num != null && x.num === c.num && shared(c.name, x.name).length > 0);
+  pick((c, x) => { const s = shared(c.name, x.name); return s.length >= 2 || s.some(t => t.length >= 5); });
+  febRoster.filter(f => !used.has(f)).forEach(f => pairs.push({ c: null, f }));
+  return pairs;
+}
+
+const recordOf = fixtures => {
+  const played = fixtures.filter(f => f.ptsFor != null && f.ptsAgainst != null);
+  return { w: played.filter(f => f.ptsFor > f.ptsAgainst).length, l: played.filter(f => f.ptsFor < f.ptsAgainst).length };
+};
 
 function build() {
   const rounds = state.rounds, roundOf = {};
@@ -319,26 +352,18 @@ function build() {
   const club = require('./club').state();
   const clubRoster = club.roster || [];
   const extra = (() => { try { return require(path.join(__dirname, 'data.json')).roster || []; } catch (e) { return []; } })();
-  const tokens = s => norm(s).split(/[\s,]+/).filter(t => t.length >= 4);
-  const usedFeb = new Set();
-  const pairs = clubRoster.map(c => {
-    const ct = tokens(c.name);
-    const f = state.roster.find(x => !usedFeb.has(x) && (x.num === c.num || c.num == null) && ct.some(t => tokens(x.name).includes(t)));
-    if (f) usedFeb.add(f);
-    return { c, f: f || null };
-  });
-  state.roster.filter(f => !usedFeb.has(f)).forEach(f => pairs.push({ c: null, f }));
+  const pairs = matchRosters(clubRoster, state.roster);
 
   const roster = pairs.map(({ c, f }) => {
     const base = c || {}, feb = f || {};
     const name = base.name || feb.name;
     const k = norm(feb.name || name), st = pl[k] || null;
-    const ex = extra.find(x => tokens(x.name).some(t => tokens(name).includes(t)) && (x.num === undefined || x.num === (base.num ?? feb.num)));
+    const ex = extra.find(x => nameTokens(x.name).some(t => nameTokens(name).includes(t)) && (x.num === undefined || x.num === (base.num ?? feb.num)));
     const extraSt = st ? {
-      gp: st.gp, min: avg(st.min, st.gp), ppg: avg(st.pts, st.gp), rpg: avg(st.reb, st.gp), apg: avg(st.ast, st.gp), spg: avg(st.stl, st.gp), bpg: avg(st.blk, st.gp), tov: avg(st.tov, st.gp), pf: avg(st.fouls, st.gp),
+      gp: st.gp, min: avg(st.min, st.gp), ppg: avg(st.pts, st.gp), rpg: avg(st.reb, st.gp), orpg: avg(st.orb, st.gp), drpg: avg(st.drb, st.gp), apg: avg(st.ast, st.gp), spg: avg(st.stl, st.gp), bpg: avg(st.blk, st.gp), tov: avg(st.tov, st.gp), pf: avg(st.fouls, st.gp),
       fg: pct(st.fg), tp: pct(st.t3), ft: pct(st.ft), t2: pct(st.t2), val: avg(st.val, st.gp), pm: avg(st.pm, st.gp),
       ...adv(st),
-      totals: { pts: st.pts, reb: st.reb, ast: st.ast, stl: st.stl, blk: st.blk, tov: st.tov, fgm: st.fg[0], fga: st.fg[1], tpm: st.t3[0], tpa: st.t3[1], ftm: st.ft[0], fta: st.ft[1] },
+      totals: { min: Math.round(st.min), pts: st.pts, reb: st.reb, orb: st.orb, drb: st.drb, ast: st.ast, pf: st.fouls, val: st.val, pm: st.pm, stl: st.stl, blk: st.blk, tov: st.tov, fgm: st.fg[0], fga: st.fg[1], tpm: st.t3[0], tpa: st.t3[1], ftm: st.ft[0], fta: st.ft[1] },
       log: st.log, gl: st.gl
     } : { gp: 0 };
     return {
@@ -398,8 +423,9 @@ function build() {
     teamStats,
     agenda: state.agenda,
     rivals: rivals(),
-    record: { w: ourMatches.filter(m => ourSide(m).me.pts > ourSide(m).opp.pts).length, l: ourMatches.filter(m => ourSide(m).me.pts < ourSide(m).opp.pts).length }
+    // Del calendario (marcadores de la FEB), no de las actas: si falla la descarga de un acta el récord sigue cuadrando con los resultados
+    record: recordOf(fixtures)
   };
 }
 
-module.exports = { sync, syncAgenda, getMatch, build, state: () => state, CFG, parseCalendar, parseStandings, parseRoster, parseMatch, parseICS, parseAgendaItem, madridISO };
+module.exports = { sync, syncAgenda, getMatch, build, state: () => state, CFG, parseCalendar, parseStandings, parseRoster, parseMatch, parseICS, parseAgendaItem, madridISO, matchRosters, recordOf };
